@@ -12,6 +12,11 @@ repositories {
 dependencies {
     // https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-kotlin
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    // https://mvnrepository.com/artifact/com.github.javaparser/javaparser-core
+    implementation("com.github.javaparser:javaparser-core:3.25.10")
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation("com.google.code.gson:gson:2.10.1")
+
     testImplementation(kotlin("test"))
 }
 

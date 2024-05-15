@@ -70,10 +70,14 @@ class Neo4jService(url: String, username: String, password: String) {
     }
 
     private fun execute(operation: (tx: TransactionContext) -> Unit) {
-        driver.session().use { session ->
-            session.executeWrite { tx ->
-                operation(tx)
+        try {
+            driver.session().use { session ->
+                session.executeWrite { tx ->
+                    operation(tx)
+                }
             }
+        }catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

@@ -13,42 +13,54 @@ class XmlParser() {
         val callTree = CallTree(rootNode)
         return callTree
     }
+
     private fun parseFromFilePath(xmlContent: String): CallTreeNode? {
-        val xmlFile = File(xmlContent)
-        val dbFactory = DocumentBuilderFactory.newInstance()
-        val dBuilder = dbFactory.newDocumentBuilder()
-        val doc = dBuilder.parse(xmlFile)
+        try {
+            val xmlFile = File(xmlContent)
+            val dbFactory = DocumentBuilderFactory.newInstance()
+            val dBuilder = dbFactory.newDocumentBuilder()
+            val doc = dBuilder.parse(xmlFile)
 
-        val root = doc.documentElement
-        if (root.nodeName == "tree") {
-            return parseNode(root)
-        }
-        return null
-    }
-    private fun parseNode(nodeElement: Element): CallTreeNode {
-        val nodeType = nodeElement.nodeName
-        val leaf = nodeElement.getAttribute("leaf").toBoolean()
-        val className = nodeElement.getAttribute("class")
-        val methodName = nodeElement.getAttribute("methodName")
-        val methodSignature = nodeElement.getAttribute("methodSignature")
-        val time = nodeElement.getAttribute("time").toIntOrNull() ?: 0
-        val count = nodeElement.getAttribute("count").toIntOrNull() ?: 0
-        val selfTime = nodeElement.getAttribute("selfTime").toIntOrNull() ?: 0
-        val lineNumber = nodeElement.getAttribute("lineNumber").toIntOrNull() ?: -1
-        val percent = nodeElement.getAttribute("percent").toDoubleOrNull() ?: 0.0
-
-        val callTreeNode = CallTreeNode(
-            nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent
-        )
-
-        val nodeList = nodeElement.childNodes
-        for (i in 0 until nodeList.length) {
-            val tempNode = nodeList.item(i)
-            if (tempNode.nodeType == Node.ELEMENT_NODE) {
-                callTreeNode.addChild(parseNode(tempNode as Element))
+            val root = doc.documentElement
+            if (root.nodeName == "tree") {
+                return parseNode(root)
             }
+            return null
+        }catch (e : Exception) {
+            e.printStackTrace()
+            return null
         }
-        return callTreeNode
+    }
+
+    private fun parseNode(nodeElement: Element): CallTreeNode? {
+        try {
+            val nodeType = nodeElement.nodeName
+            val leaf = nodeElement.getAttribute("leaf").toBoolean()
+            val className = nodeElement.getAttribute("class")
+            val methodName = nodeElement.getAttribute("methodName")
+            val methodSignature = nodeElement.getAttribute("methodSignature")
+            val time = nodeElement.getAttribute("time").toIntOrNull() ?: 0
+            val count = nodeElement.getAttribute("count").toIntOrNull() ?: 0
+            val selfTime = nodeElement.getAttribute("selfTime").toIntOrNull() ?: 0
+            val lineNumber = nodeElement.getAttribute("lineNumber").toIntOrNull() ?: -1
+            val percent = nodeElement.getAttribute("percent").toDoubleOrNull() ?: 0.0
+
+            val callTreeNode = CallTreeNode(
+                nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent
+            )
+
+            val nodeList = nodeElement.childNodes
+            for (i in 0 until nodeList.length) {
+                val tempNode = nodeList.item(i)
+                if (tempNode.nodeType == Node.ELEMENT_NODE) {
+                    parseNode(tempNode as Element)?.let { callTreeNode.addChild(it) }
+                }
+            }
+            return callTreeNode
+        }catch (e:Exception){
+            e.printStackTrace()
+            return null
+        }
     }
 
 }

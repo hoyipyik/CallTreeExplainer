@@ -18,5 +18,6 @@ fun main() {
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
     callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller)
     // save to json
-    // callTree.rootNode?.printTree()
+    // print the tree
+    print(callTree.printCallTree())
 }

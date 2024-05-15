@@ -1,7 +1,10 @@
 package org.example.utils
 
 import org.example.model.CallTreeNode
-import org.neo4j.driver.*
+import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Driver
+import org.neo4j.driver.GraphDatabase
+import org.neo4j.driver.TransactionContext
 
 class Neo4jService(url: String, username: String, password: String) {
     private val driver: Driver = GraphDatabase.driver(url, AuthTokens.basic(username, password))
@@ -11,7 +14,7 @@ class Neo4jService(url: String, username: String, password: String) {
     }
 
     fun deleteAll() {
-        execute {tx ->
+        execute { tx ->
             tx.run("MATCH (n:CallTreeNode) DETACH DELETE n")
         }
         println("Neo4j has deleted all old nodes")
@@ -76,7 +79,7 @@ class Neo4jService(url: String, username: String, password: String) {
                     operation(tx)
                 }
             }
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

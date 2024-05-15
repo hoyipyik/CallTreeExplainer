@@ -13,7 +13,7 @@ class XmlParser() {
         val callTree = CallTree(rootNode)
         return callTree
     }
-    fun parseFromFilePath(xmlContent: String): CallTreeNode? {
+    private fun parseFromFilePath(xmlContent: String): CallTreeNode? {
         val xmlFile = File(xmlContent)
         val dbFactory = DocumentBuilderFactory.newInstance()
         val dBuilder = dbFactory.newDocumentBuilder()
@@ -26,6 +26,7 @@ class XmlParser() {
         return null
     }
     private fun parseNode(nodeElement: Element): CallTreeNode {
+        val nodeType = nodeElement.nodeName
         val leaf = nodeElement.getAttribute("leaf").toBoolean()
         val className = nodeElement.getAttribute("class")
         val methodName = nodeElement.getAttribute("methodName")
@@ -37,14 +38,14 @@ class XmlParser() {
         val percent = nodeElement.getAttribute("percent").toDoubleOrNull() ?: 0.0
 
         val callTreeNode = CallTreeNode(
-            leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent
+            nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent
         )
 
         val nodeList = nodeElement.childNodes
         for (i in 0 until nodeList.length) {
             val tempNode = nodeList.item(i)
             if (tempNode.nodeType == Node.ELEMENT_NODE) {
-                callTreeNode.children.add(parseNode(tempNode as Element))
+                callTreeNode.addChild(parseNode(tempNode as Element))
             }
         }
         return callTreeNode

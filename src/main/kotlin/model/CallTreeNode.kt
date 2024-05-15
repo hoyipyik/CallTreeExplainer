@@ -1,6 +1,5 @@
 package org.example.model
 
-// <node leaf="false" class="CH.ifa.draw.standard.CompositeFigure" methodName="add" methodSignature="(LCH/ifa/draw/framework/Figure;)LCH/ifa/draw/framework/Figure;" time="86" count="1" selfTime="4" lineNumber="-1" percent="0.0">
 class CallTreeNode(
     val nodeType: String,
     val leaf: Boolean,
@@ -35,7 +34,6 @@ class CallTreeNode(
     fun printNode(indent: String = "") {
         // Print the details of the current node
         printCurrentNode(indent)
-
         // Print each child with increased indentation
         children.forEach { child ->
             child.printNode("$indent    ")

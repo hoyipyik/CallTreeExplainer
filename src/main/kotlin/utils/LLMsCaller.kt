@@ -1,16 +1,17 @@
 package org.example.utils
 
 import org.example.domain.ChildNodesExplanation
+import java.io.IOException
 
-class LLMsCaller {
-    fun getAIExplanation(methodCode: String?, childrenExplanation: List<ChildNodesExplanation>): String?{
+class LLMsCaller(private val llmPath: String) {
+    fun getAIExplanation(methodCode: String?, childrenExplanation: List<ChildNodesExplanation>): String{
         try {
             val prompt: String = generatePrompt(methodCode ?: "", childrenExplanation)
             val res = fetchResFromAI(prompt)
             return res
         }catch (e: Exception){
             println(e.message)
-            return null
+            return ""
         }
     }
 
@@ -18,15 +19,74 @@ class LLMsCaller {
         val extractedChildData: List<String> = childrenExplanation.map { item ->
             item.methodName + ":\n" + item.explanation
         }
-        val res = "Please summarise this code in one sentence based on the sourceCode and other information below:\n" +
-                "Here is the source:\n" + sourceCode +
+        val intro = "Please summarize the following code in one short sentence, explanation of some methods is provided below."
+        val res = intro + "Here is the source:\n" + sourceCode +
                         "\nHere is explanation to some method:\n" + extractedChildData.joinToString(separator = "\n") +
                 "\n\nIf there is no source code or explanation to some methods, please just ignore them but still give my summarization based on other information\n"
         return res
     }
 
+    private fun extractInfoFromRes(raw: String): String{
+            val startToken = "[/INST]"
+            val endToken = "</s>"
+
+            val startIndex = raw.indexOf(startToken) + startToken.length
+            val endIndex = raw.indexOf(endToken)
+
+            val resWithGreeting: String = raw.substring(startIndex, endIndex).trim()
+            return resWithGreeting
+//            return resWithGreeting.split(":")[1]
+    }
+
     private fun fetchResFromAI(prompt: String): String {
-        return prompt
+        val processedPrompt = prompt.replace("\"", "\\\"")
+        val command = listOf(
+            "$llmPath/main.exe",
+            "-m", "$llmPath/llama-2-7b-chat.Q2_K.gguf",
+            "-c", "4096",
+            "--temp", "0.2",
+            "--repeat_penalty", "1.1",
+            "-p", "<s> [INST] <<SYS>><</SYS>> $processedPrompt [/INST]"
+        )
+        val processBuilder = ProcessBuilder(command).apply {
+//            redirectOutput(ProcessBuilder.Redirect.DISCARD) // Suppress stdout
+            redirectError(ProcessBuilder.Redirect.DISCARD)  // Suppress stderr
+        }
+        try {
+            val process = processBuilder.start()
+
+            // Collect all output into a single string
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+
+            // Wait for the process to terminate and check the exit value
+            val exitCode = process.waitFor()
+            return extractInfoFromRes(output)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+        return ""
     }
 
 }
+
+//fun main(args: Array<String>) {
+//    val dotenv = dotenv()
+//    val sourceCode = """
+//        public void openView() {
+//            JavaDrawApp window = new JavaDrawApp();
+//            window.open();
+//            window.setDrawing(drawing());
+//            window.setTitle("JHotDraw (View)");
+//        }
+//    """.trimIndent()
+//    val intro = "Please summarize the following code in one short sentence(less than 10 letters), explanation of some methods is provided below."
+//    val prompt = intro +
+//            "Here is the source:" +  sourceCode +
+//            "Here is explanation to some method:" + " " +
+//            "If there is no source code or explanation to some methods, just ignore them but still give summarization based on other information\n"
+//    val llMsCaller = LLMsCaller(llmPath = dotenv["LLAMA_PATH"])
+//    val out = llMsCaller.fetchResFromAI(prompt)
+//    println(out)
+//}

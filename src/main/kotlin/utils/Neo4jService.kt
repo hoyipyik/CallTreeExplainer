@@ -40,7 +40,9 @@ class Neo4jService(url: String, username: String, password: String) {
                 selfTime: ${'$'}selfTime,
                 lineNumber: ${'$'}lineNumber,
                 percent: ${'$'}percent,
-                explanation: ${'$'}explanation
+                explanation: ${'$'}explanation,
+                parentNode: ${'$'}parentNode,
+                childNodes: ${'$'}childNodes
             }) RETURN id(n)
         """.trimIndent()
 
@@ -55,7 +57,9 @@ class Neo4jService(url: String, username: String, password: String) {
             "selfTime" to node.selfTime,
             "lineNumber" to node.lineNumber,
             "percent" to node.percent,
-            "explanation" to node.explanation
+            "explanation" to node.explanation,
+            "parentNode" to (node.parent?.className?.takeIf { it.isNotEmpty() } ?: "root"),
+            "childNodes" to node.children.map { it.className }
         )
 
         return tx.run(query, params).single()[0].asLong()
@@ -65,7 +69,7 @@ class Neo4jService(url: String, username: String, password: String) {
         parentNode.children.forEach { child ->
             val childId = createNode(tx, child)
             tx.run(
-                "MATCH (p), (c) WHERE id(p) = ${'$'}parentId AND id(c) = ${'$'}childId CREATE (p)-[:HAS_CHILD]->(c)",
+                "MATCH (p), (c) WHERE id(p) = ${'$'}parentId AND id(c) = ${'$'}childId CREATE (p)-[:CALL]->(c)",
                 mapOf("parentId" to parentId, "childId" to childId)
             )
             addChildren(tx, childId, child)

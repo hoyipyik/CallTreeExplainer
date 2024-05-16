@@ -3,7 +3,10 @@ package org.example.utils
 import org.example.domain.ChildNodesExplanation
 import java.io.IOException
 
-class LLMsCaller(private val llmPath: String) {
+class LLMsCaller(
+    private val llmPath: String,
+    private val model: String
+) {
     fun getAIExplanation(methodCode: String?, childrenExplanation: List<ChildNodesExplanation>): String{
         try {
             val prompt: String = generatePrompt(methodCode ?: "", childrenExplanation)
@@ -42,7 +45,7 @@ class LLMsCaller(private val llmPath: String) {
         val processedPrompt = prompt.replace("\"", "\\\"")
         val command = listOf(
             "$llmPath/main.exe",
-            "-m", "$llmPath/llama-2-7b-chat.Q2_K.gguf",
+            "-m", "$llmPath/$model",
             "-c", "4096",
             "--temp", "0.2",
             "--repeat_penalty", "1.1",

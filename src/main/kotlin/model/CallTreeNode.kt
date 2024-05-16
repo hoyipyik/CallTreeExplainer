@@ -14,6 +14,7 @@ class CallTreeNode(
     val parent: CallTreeNode? = null,
     var explanation: String? = null,
     val children: MutableList<CallTreeNode> = mutableListOf(),
+    var id: Long? = null,
 ) {
 
     fun addChild(child: CallTreeNode) {
@@ -23,6 +24,11 @@ class CallTreeNode(
     fun upgradeExplanation(newExplanation: String) {
         explanation = newExplanation
     }
+
+    fun upgradeNodeId(newNodeId: Long) {
+        id = newNodeId
+    }
+
     private fun printCurrentNode(indent: String = "") {
         println(
             "${indent}${nodeType.uppercase()}: $className.$methodName:$methodSignature" +

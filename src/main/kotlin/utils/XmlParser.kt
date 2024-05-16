@@ -7,10 +7,13 @@ import org.w3c.dom.Node
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-class XmlParser() {
+class XmlParser(
+    private val neo4jService: Neo4jService
+) {
     fun constructCallTreeFromPath(filePath: String): CallTree {
         val rootNode = parseFromFilePath(filePath)
         val callTree = CallTree(rootNode)
+        println("Call Tree Construction ready🥳")
         return callTree
     }
 
@@ -23,7 +26,7 @@ class XmlParser() {
 
             val root = doc.documentElement
             if (root.nodeName == "tree") {
-                return parseNode(root, null)
+                return parseNode(root, null, null)
             }
             return null
         }catch (e : Exception) {
@@ -32,7 +35,7 @@ class XmlParser() {
         }
     }
 
-    private fun parseNode(nodeElement: Element, parentNode: CallTreeNode?): CallTreeNode? {
+    private fun parseNode(nodeElement: Element, parentNode: CallTreeNode?, parentNodeId: Long?): CallTreeNode? {
         try {
             val nodeType = nodeElement.nodeName
             val leaf = nodeElement.getAttribute("leaf").toBoolean()
@@ -49,11 +52,20 @@ class XmlParser() {
                 nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent, parentNode
             )
 
+            val currentNodeId = neo4jService.addNode(callTreeNode)!!
+            callTreeNode.upgradeNodeId(currentNodeId)
+
+            if (parentNodeId != null) {
+                neo4jService.connectNode(parentNodeId, currentNodeId)
+            }
+
             val nodeList = nodeElement.childNodes
             for (i in 0 until nodeList.length) {
                 val tempNode = nodeList.item(i)
                 if (tempNode.nodeType == Node.ELEMENT_NODE) {
-                    parseNode(tempNode as Element, callTreeNode)?.let { callTreeNode.addChild(it) }
+                    parseNode(tempNode as Element, callTreeNode, currentNodeId)?.let {
+                        callTreeNode.addChild(it)
+                    }
                 }
             }
             return callTreeNode

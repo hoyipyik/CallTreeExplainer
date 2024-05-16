@@ -3,6 +3,7 @@ package org.example.model
 import org.example.domain.ChildNodesExplanation
 import org.example.utils.JSONWriter
 import org.example.utils.LLMsCaller
+import org.example.utils.Neo4jService
 import org.example.utils.SourceCodeFetcher
 
 class CallTree(
@@ -16,35 +17,43 @@ class CallTree(
         rootNode?.printNode(indent)
     }
 
-    fun iterateAndUpgradeExplanation(sourceCodeFetcher: SourceCodeFetcher, llMsCaller: LLMsCaller) {
+    fun iterateAndUpgradeExplanation(
+        sourceCodeFetcher: SourceCodeFetcher,
+        llMsCaller: LLMsCaller,
+        neo4jService: Neo4jService
+    ) {
         rootNode?.let { node ->
 //            traverseAndUpgrade(node, sourceCodeFetcher, llMsCaller)
-            traverseAndExplain(node, sourceCodeFetcher, llMsCaller)
+            traverseAndExplain(node, sourceCodeFetcher, llMsCaller, neo4jService)
         }
     }
 
     private fun traverseAndExplain(
         node: CallTreeNode,
         sourceCodeFetcher: SourceCodeFetcher,
-        llMsCaller: LLMsCaller
+        llMsCaller: LLMsCaller,
+        neo4jService: Neo4jService
     ) {
         node.children.forEach { childNode ->
-            traverseAndExplain(childNode, sourceCodeFetcher, llMsCaller)
+            traverseAndExplain(childNode, sourceCodeFetcher, llMsCaller, neo4jService)
         }
-        explainer(node, sourceCodeFetcher, llMsCaller)
+        explainer(node, sourceCodeFetcher, llMsCaller, neo4jService)
     }
 
     private fun explainer(
         node: CallTreeNode,
         sourceCodeFetcher: SourceCodeFetcher,
-        llMsCaller: LLMsCaller
+        llMsCaller: LLMsCaller,
+        neo4jService: Neo4jService
     ) {
         val childExplanations: List<ChildNodesExplanation> = node.children.map { childNode ->
             ChildNodesExplanation(childNode.methodName, childNode.explanation.toString())
         }
         val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
-        val newExplanation =  llMsCaller.getAIExplanation(sourceCode, childExplanations)
-        newExplanation?.let { node.upgradeExplanation(it) }
+        val newExplanation = llMsCaller.getAIExplanation(sourceCode, childExplanations)
+        node.upgradeExplanation(newExplanation)
+        neo4jService.upgradeNodeExplanation(node.id!!, newExplanation)
+
     }
 
     fun writeTreeToJson(path2Save: String, jsonWritter: JSONWriter): Boolean {

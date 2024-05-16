@@ -1,5 +1,6 @@
 package org.example.model
 
+import org.example.domain.ChildNodesExplanation
 import org.example.utils.JSONWriter
 import org.example.utils.LLMsCaller
 import org.example.utils.SourceCodeFetcher
@@ -17,35 +18,60 @@ class CallTree(
 
     fun iterateAndUpgradeExplanation(sourceCodeFetcher: SourceCodeFetcher, llMsCaller: LLMsCaller) {
         rootNode?.let { node ->
-            traverseAndUpgrade(node, sourceCodeFetcher, llMsCaller)
+//            traverseAndUpgrade(node, sourceCodeFetcher, llMsCaller)
+            traverseAndExplain(node, sourceCodeFetcher, llMsCaller)
         }
     }
 
-    private fun traverseAndUpgrade(
+    private fun traverseAndExplain(
         node: CallTreeNode,
         sourceCodeFetcher: SourceCodeFetcher,
         llMsCaller: LLMsCaller
     ) {
-        // Fetch source code and upgrade explanation
-        val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
-        if(sourceCode != null ){
-            val newExplanation = llMsCaller.getAIExplanation(sourceCode)
-            newExplanation?.let { node.upgradeExplanation(it) }
+        node.children.forEach { childNode ->
+            traverseAndExplain(childNode, sourceCodeFetcher, llMsCaller)
         }
-
-        // Recursively upgrade explanations for all children
-        node.children.forEach { child ->
-            traverseAndUpgrade(child, sourceCodeFetcher, llMsCaller)
-        }
+        explainer(node, sourceCodeFetcher, llMsCaller)
     }
 
-    fun writeTreeToJson(path2Save: String, jsonWritter: JSONWriter): Boolean{
+    private fun explainer(
+        node: CallTreeNode,
+        sourceCodeFetcher: SourceCodeFetcher,
+        llMsCaller: LLMsCaller
+    ) {
+        val childExplanations: List<ChildNodesExplanation> = node.children.map { childNode ->
+            ChildNodesExplanation(childNode.methodName, childNode.explanation.toString())
+        }
+        val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
+        val newExplanation =  llMsCaller.getAIExplanation(sourceCode, childExplanations)
+        newExplanation?.let { node.upgradeExplanation(it) }
+    }
+
+    fun writeTreeToJson(path2Save: String, jsonWritter: JSONWriter): Boolean {
         try {
             rootNode?.let { jsonWritter.write2File(it, path2Save) }
             return true
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println(e.message)
             return false
         }
     }
+
+//    private fun traverseAndUpgrade(
+//        node: CallTreeNode,
+//        sourceCodeFetcher: SourceCodeFetcher,
+//        llMsCaller: LLMsCaller
+//    ) {
+//        // Fetch source code and upgrade explanation
+//        val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
+//        if (sourceCode != null) {
+//            val newExplanation = llMsCaller.getAIExplanation(sourceCode, listOf())
+//            newExplanation?.let { node.upgradeExplanation(it) }
+//        }
+//
+//        // Recursively upgrade explanations for all children
+//        node.children.forEach { child ->
+//            traverseAndUpgrade(child, sourceCodeFetcher, llMsCaller)
+//        }
+//    }
 }

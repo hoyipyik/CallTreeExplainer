@@ -12,12 +12,13 @@ fun main() {
     val url: String = dotenv["NEO4J_URL"]
     val username: String = dotenv["NEO4J_USERNAME"]
     val password: String = dotenv["NEO4J_PASSWORD"]
+    val llmPath: String = dotenv["LLAMA_PATH"]
 
     val neo4j = Neo4jService(url, username, password)
     neo4j.deleteAll()
     val xmlParser = XmlParser()
     val sourceCodeFetcher = SourceCodeFetcher()
-    val llMsCaller = LLMsCaller()
+    val llMsCaller = LLMsCaller(llmPath)
     val jsonWriter = JSONWriter()
 
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)

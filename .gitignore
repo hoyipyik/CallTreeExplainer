@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 .env
 
+/src/main/resources/sourceCode/jhotdraw
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

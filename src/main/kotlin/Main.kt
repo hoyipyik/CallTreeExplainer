@@ -16,17 +16,17 @@ fun main() {
 
     val neo4j = Neo4jService(url, username, password)
     neo4j.deleteAll()
-    val xmlParser = XmlParser()
+    val xmlParser = XmlParser(neo4j)
     val sourceCodeFetcher = SourceCodeFetcher()
     val llMsCaller = LLMsCaller(llmPath)
     val jsonWriter = JSONWriter()
 
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
-    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller)
+    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
     // save to json
     callTree.writeTreeToJson(jsonFilePath, jsonWriter)
     // save to neo4j
-    callTree.getRootNode()?.let { neo4j.saveCallTree(it) }
+//    callTree.getRootNode()?.let { neo4j.saveCallTree(it) }
     // print the tree
 //    callTree.printCallTree()
 }

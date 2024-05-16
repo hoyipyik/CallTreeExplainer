@@ -27,6 +27,40 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
+    fun addNode(node: CallTreeNode): Long? {
+        try {
+            return driver.session().use { session ->
+                session.executeWrite { tx ->
+                    createNode(tx, node)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+
+    }
+
+    fun connectNode(parentId: Long, childId: Long) {
+        execute { tx ->
+            tx.run(
+                "MATCH (p), (c) WHERE id(p) = ${'$'}parentId AND id(c) = ${'$'}childId CREATE (p)-[:CALL]->(c)",
+                mapOf("parentId" to parentId, "childId" to childId)
+            )
+        }
+    }
+
+    fun upgradeNodeExplanation(nodeId: Long, newExplanation: String) {
+        println("Upgrade explanation for $nodeId, $newExplanation")
+        execute { tx ->
+            tx.run(
+                "MATCH (n) WHERE id(n) = \$nodeId SET n.explanation = \$newExplanation RETURN n",
+                mapOf("nodeId" to nodeId, "newExplanation" to newExplanation)
+            )
+        }
+    }
+
+
     private fun createNode(tx: TransactionContext, node: CallTreeNode): Long {
         val query = """
             CREATE (n:CallTreeNode {
@@ -46,8 +80,7 @@ class Neo4jService(url: String, username: String, password: String) {
             }) RETURN id(n)
         """.trimIndent()
 
-        val params = mapOf(
-            "nodeType" to node.nodeType,
+        val params = mapOf("nodeType" to node.nodeType,
             "leaf" to node.leaf,
             "className" to node.className,
             "methodName" to node.methodName,
@@ -59,8 +92,7 @@ class Neo4jService(url: String, username: String, password: String) {
             "percent" to node.percent,
             "explanation" to node.explanation,
             "parentNode" to (node.parent?.className?.takeIf { it.isNotEmpty() } ?: "root"),
-            "childNodes" to node.children.map { it.className }
-        )
+            "childNodes" to node.children.map { it.className })
 
         return tx.run(query, params).single()[0].asLong()
     }

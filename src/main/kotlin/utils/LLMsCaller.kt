@@ -22,10 +22,10 @@ class LLMsCaller(
         val extractedChildData: List<String> = childrenExplanation.map { item ->
             item.methodName + ":\n" + item.explanation
         }
-        val intro = "Please summarize the following code in one short sentence, explanation of some methods is provided below."
+        val intro = "Please summarize based on source code and other information provided below."
         val res = intro + "Here is the source:\n" + sourceCode +
-                        "\nHere is explanation to some method:\n" + extractedChildData.joinToString(separator = "\n") +
-                "\n\nIf there is no source code or explanation to some methods, please just ignore them but still give my summarization based on other information\n"
+                        "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n") +
+                "\n\nIf there is no source code you just summarize based on other information. If there is no valid information, just summarise the source code. If you can't find neither source code nor other information, just response empty string\n"
         return res
     }
 

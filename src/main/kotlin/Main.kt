@@ -26,7 +26,7 @@ fun main() {
     callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
     // save to json
     callTree.writeTreeToJson(jsonFilePath, jsonWriter)
-    // save to neo4j
+    // save to neo4j from empty
 //    callTree.getRootNode()?.let { neo4j.saveCallTree(it) }
     // print the tree
 //    callTree.printCallTree()

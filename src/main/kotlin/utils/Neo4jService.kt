@@ -20,6 +20,7 @@ class Neo4jService(url: String, username: String, password: String) {
         println("Neo4j has deleted all old nodes")
     }
 
+    // save the whole call tree from empty
     fun saveCallTree(root: CallTreeNode) {
         execute { tx ->
             val rootNodeId = createNode(tx, root)

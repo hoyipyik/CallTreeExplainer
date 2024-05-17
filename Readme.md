@@ -4,6 +4,13 @@ This is a code explainer focusing on explaining Java call tree via LLMs.
 
 ## Setup
 
+### Neo4j
+
+Install Docker and use docker compose to start
+  ```bash
+  docker compose up
+  ```
+
 ### Call Tree
 
   You may generate call tree using Jprofiler and export in XML format. The XML should be put

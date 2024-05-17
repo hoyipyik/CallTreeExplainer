@@ -11,6 +11,8 @@ Install Docker and use docker compose to start
   docker compose up
   ```
 
+Username is `neo4j`, password is `testpassword`
+
 ### Call Tree
 
   You may generate call tree using Jprofiler and export in XML format. The XML should be put

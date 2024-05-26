@@ -28,7 +28,7 @@ Username is `neo4j`, password is `testpassword`
 
 ### LLMs
 
-  Here, we use `llama.cpp`to run LLama2 AI.
+  Here, we use `llama.cpp`to run LLama AI.
 
   Please clone within `src/main/` folder.
 
@@ -44,7 +44,12 @@ Username is `neo4j`, password is `testpassword`
   ./main -h # should print help manual for llama.cpp
   ```
 - Download model weights
-      
-  Download from [HuggingFace](https://huggingface.co/TheBloke?search_models=gguf&sort_models=downloads#models), for example we use `llama-2-7b-chat.Q2_K.gguf` by default.
 
+  You may choose the model you like.(Have tested 2 only)
+
+  - Download `LLama-2` from [HuggingFace](https://huggingface.co/TheBloke?search_models=gguf&sort_models=downloads#models), for example we use `llama-2-7b-chat.Q2_K.gguf` by default.
+  
+  - Download `LLama-3`from [HuggingFace](https://huggingface.co/QuantFactory/Meta-Llama-3-8B-GGUF/tree/main), here we use `Meta-Llama-3-8B.Q2_K.gguf`by default.
+
+ 
   

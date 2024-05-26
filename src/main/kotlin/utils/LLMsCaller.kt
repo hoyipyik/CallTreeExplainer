@@ -18,14 +18,39 @@ class LLMsCaller(
         }
     }
 
+    /*
+    * Example of prompt on llama-3-8B
+    Give me a short summarize within 15 words, based on source code and other information provided below.
+    If there is no source code or other information after :, still try to give me summarization.
+    If both is missing, return empty string
+    Give answer in this format:
+    Answer: .....
+    Here is the source code:
+    void main(){
+        String b = func1();
+        String b2 = func2(b);
+        func3(b2)
+    }
+    Here is other information:
+    func1:
+    Read file from file system.
+    func2:
+    Turn the string to uppercase.
+    func3:
+    Save String to file system.
+    * */
+
     private fun generatePrompt(sourceCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
         val extractedChildData: List<String> = childrenExplanation.map { item ->
             item.methodName + ":\n" + item.explanation
         }
-        val intro = "Please summarize based on source code and other information provided below."
-        val res = intro + "Here is the source:\n" + sourceCode +
-                        "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n") +
-                "\n\nIf there is no source code you just summarize based on other information. If there is no valid information, just summarise the source code. If you can't find neither source code nor other information, just response empty string\n"
+        val intro = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
+                "If there is no source code or other information after :, still try to give me summarization.\n" +
+                "If both is missing, return empty string\n" +
+                "Give answer in this format:\n" +
+                "Answer: ....."
+        val res = intro + "Here is the source code:\n" + sourceCode +
+                        "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n")
         return res
     }
 
@@ -41,7 +66,7 @@ class LLMsCaller(
 //            return resWithGreeting.split(":")[1]
     }
 
-    private fun fetchResFromAI(prompt: String): String {
+    fun fetchResFromAI(prompt: String): String {
         val processedPrompt = prompt.replace("\"", "\\\"")
         val command = listOf(
             "$llmPath/main.exe",
@@ -74,22 +99,27 @@ class LLMsCaller(
 
 }
 
-//fun main(args: Array<String>) {
-//    val dotenv = dotenv()
-//    val sourceCode = """
-//        public void openView() {
-//            JavaDrawApp window = new JavaDrawApp();
-//            window.open();
-//            window.setDrawing(drawing());
-//            window.setTitle("JHotDraw (View)");
-//        }
-//    """.trimIndent()
-//    val intro = "Please summarize the following code in one short sentence(less than 10 letters), explanation of some methods is provided below."
-//    val prompt = intro +
-//            "Here is the source:" +  sourceCode +
-//            "Here is explanation to some method:" + " " +
-//            "If there is no source code or explanation to some methods, just ignore them but still give summarization based on other information\n"
-//    val llMsCaller = LLMsCaller(llmPath = dotenv["LLAMA_PATH"])
-//    val out = llMsCaller.fetchResFromAI(prompt)
-//    println(out)
-//}
+fun main(){
+    val prompt = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
+            "    If there is no source code or other information after :, still try to give me summarization.\n" +
+            "    If both is missing, return empty string\n" +
+            "    Give answer in this format:\n" +
+            "    Answer: .....\n" +
+            "    Here is the source code:\n" +
+            "    void main(){\n" +
+            "        String b = func1();\n" +
+            "        String b2 = func2(b);\n" +
+            "        func3(b2)\n" +
+            "    }\n" +
+            "    Here is other information:\n" +
+            "    func1:\n" +
+            "    Read file from file system.\n" +
+            "    func2:\n" +
+            "    Turn the string to uppercase.\n" +
+            "    func3:\n" +
+            "    Save String to file system."
+    val prompt2 = "What is apple inc"
+    val llm = LLMsCaller("src/main/llama.cpp", "llama-2-7b-chat.Q2_K.gguf")
+    val ans = llm.fetchResFromAI(prompt2)
+    println(ans)
+}

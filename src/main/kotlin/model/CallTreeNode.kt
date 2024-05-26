@@ -13,8 +13,9 @@ class CallTreeNode(
     val percent: Double,
     val parent: CallTreeNode? = null,
     var explanation: String? = null,
+    var sourceCode: String? = null,
     val children: MutableList<CallTreeNode> = mutableListOf(),
-    var id: Long? = null,
+    var id: Long? = null
 ) {
 
     fun addChild(child: CallTreeNode) {
@@ -27,6 +28,10 @@ class CallTreeNode(
 
     fun upgradeNodeId(newNodeId: Long) {
         id = newNodeId
+    }
+
+    fun upgradeSourceCode(newSourceCode: String?) {
+        sourceCode = newSourceCode
     }
 
     private fun printCurrentNode(indent: String = "") {

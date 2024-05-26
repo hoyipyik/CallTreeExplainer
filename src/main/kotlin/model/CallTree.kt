@@ -52,8 +52,9 @@ class CallTree(
         val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
         val newExplanation = llMsCaller.getAIExplanation(sourceCode, childExplanations)
         node.upgradeExplanation(newExplanation)
+        node.upgradeSourceCode(sourceCode)
         neo4jService.upgradeNodeExplanation(node.id!!, newExplanation)
-
+        neo4jService.upgradeNodeSourceCode(node.id!!, sourceCode)
     }
 
     fun writeTreeToJson(path2Save: String, jsonWritter: JSONWriter): Boolean {

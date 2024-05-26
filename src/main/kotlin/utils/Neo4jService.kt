@@ -61,6 +61,15 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
+    fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String?) {
+        execute { tx ->
+            tx.run(
+                "MATCH (n) WHERE id(n) = \$nodeId SET n.sourceCode = \$newSourceCode RETURN n",
+                mapOf("nodeId" to nodeId, "newSourceCode" to newSourceCode)
+            )
+        }
+    }
+
 
     private fun createNode(tx: TransactionContext, node: CallTreeNode): Long {
         val query = """
@@ -76,6 +85,7 @@ class Neo4jService(url: String, username: String, password: String) {
                 lineNumber: ${'$'}lineNumber,
                 percent: ${'$'}percent,
                 explanation: ${'$'}explanation,
+                sourceCode: ${'$'}sourceCode,
                 parentNode: ${'$'}parentNode,
                 childNodes: ${'$'}childNodes
             }) RETURN id(n)
@@ -92,9 +102,9 @@ class Neo4jService(url: String, username: String, password: String) {
             "lineNumber" to node.lineNumber,
             "percent" to node.percent,
             "explanation" to node.explanation,
+            "sourceCode" to node.sourceCode,
             "parentNode" to (node.parent?.className?.takeIf { it.isNotEmpty() } ?: "root"),
             "childNodes" to node.children.map { it.className })
-
         return tx.run(query, params).single()[0].asLong()
     }
 

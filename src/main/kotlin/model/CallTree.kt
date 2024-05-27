@@ -48,7 +48,7 @@ class CallTree(
     ) {
         val childExplanations: List<ChildNodesExplanation> = node.children
             .filter { it.explanation.isNotEmpty() }
-            .map { childNode -> ChildNodesExplanation(childNode.methodName, childNode.explanation.toString()) }
+            .map { childNode -> ChildNodesExplanation(childNode.methodName, childNode.explanation) }
         val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
         val newExplanation = llMsCaller.getAIExplanation(sourceCode, childExplanations)
         node.upgradeExplanation(newExplanation)

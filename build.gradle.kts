@@ -18,6 +18,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     // https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver
     implementation("org.neo4j.driver:neo4j-java-driver:5.20.0")
+    // https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp
+    implementation("com.squareup.okhttp:okhttp:2.7.5")
 
     testImplementation(kotlin("test"))
 }

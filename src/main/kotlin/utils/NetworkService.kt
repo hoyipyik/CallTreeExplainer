@@ -6,6 +6,9 @@ import com.squareup.okhttp.Request
 import com.squareup.okhttp.RequestBody
 import org.example.model.ai.RequestData
 import org.example.model.ai.ResponseData
+import java.util.concurrent.TimeUnit
+
+
 
 
 class NetworkService(
@@ -14,7 +17,7 @@ class NetworkService(
 ) {
     fun httpNoneStreamPostRequest(reqData: RequestData): ResponseData? {
         try {
-            val client = OkHttpClient()
+            val client = createClient()
             val request: Request = createRequest(reqData)
             val response = client.newCall(request).execute()
             val rawJson: String = response.body().string()
@@ -26,6 +29,13 @@ class NetworkService(
             println(e.message)
             return null
         }
+    }
+
+    private fun createClient(): OkHttpClient {
+        val client: OkHttpClient = OkHttpClient()
+        client.setReadTimeout(2, TimeUnit.MINUTES)
+        client.setWriteTimeout(2, TimeUnit.MINUTES)
+        return client
     }
 
     private fun createRequest(reqData: RequestData): Request {

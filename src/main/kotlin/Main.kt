@@ -19,8 +19,9 @@ fun main() {
     neo4j.deleteAll()
     val xmlParser = XmlParser(neo4j)
     val sourceCodeFetcher = SourceCodeFetcher()
-    val llMsCaller = LLMsCaller(llmPath, model)
-    val jsonWriter = JSONWriter()
+    val jsonService = JSONService()
+    val networkService = NetworkService(ollmaUrl, jsonService)
+    val llMsCaller = LLMsCaller(networkService, model, llmPath)
 
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
     callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)

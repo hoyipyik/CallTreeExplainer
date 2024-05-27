@@ -1,7 +1,7 @@
 package org.example.model
 
 import org.example.domain.ChildNodesExplanation
-import org.example.utils.JSONWriter
+import org.example.utils.JSONService
 import org.example.utils.LLMsCaller
 import org.example.utils.Neo4jService
 import org.example.utils.SourceCodeFetcher
@@ -57,7 +57,7 @@ class CallTree(
         neo4jService.upgradeNodeSourceCode(node.id!!, sourceCode)
     }
 
-    fun writeTreeToJson(path2Save: String, jsonWritter: JSONWriter): Boolean {
+    fun writeTreeToJson(path2Save: String, jsonWritter: JSONService): Boolean {
         try {
             rootNode?.let { jsonWritter.write2File(it, path2Save) }
             return true

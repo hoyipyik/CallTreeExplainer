@@ -1,12 +1,13 @@
 package org.example.utils
 
 import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 
 import org.example.model.CallTreeNode
 import java.io.FileWriter
 
-class JSONWriter {
-    private val gson: Gson = GsonBuilder()
+class JSONService {
+    val gson: Gson = GsonBuilder()
         .setPrettyPrinting()
 //        .registerTypeAdapter(CallTreeNode::class.java, JsonSerializer<CallTreeNode> { src, _, _ ->
 //            JsonObject().apply {
@@ -24,9 +25,13 @@ class JSONWriter {
         })
         .create()
 
-    fun convert2Json(node: CallTreeNode): String?{
+    fun <T> convert2Json(node: T): String?{
         val jsonString = gson.toJson(node)
         return jsonString
+    }
+
+    inline fun <reified T> json2Object(jsonString: String): T {
+        return gson.fromJson(jsonString, object : TypeToken<T>() {}.type)
     }
 
     fun write2File(node: CallTreeNode, path: String){

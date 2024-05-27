@@ -12,8 +12,8 @@ class CallTreeNode(
     val lineNumber: Int,
     val percent: Double,
     val parent: CallTreeNode? = null,
-    var explanation: String? = null,
-    var sourceCode: String? = null,
+    var explanation: String = "",
+    var sourceCode: String = "",
     val children: MutableList<CallTreeNode> = mutableListOf(),
     var id: Long? = null
 ) {
@@ -30,7 +30,7 @@ class CallTreeNode(
         id = newNodeId
     }
 
-    fun upgradeSourceCode(newSourceCode: String?) {
+    fun upgradeSourceCode(newSourceCode: String) {
         sourceCode = newSourceCode
     }
 
@@ -38,7 +38,7 @@ class CallTreeNode(
         println(
             "${indent}${nodeType.uppercase()}: $className.$methodName:$methodSignature" +
                     "\n${indent}Time: $time ms, Count: $count, Self Time: $selfTime ms, Line: $lineNumber, Percent: $percent%" +
-                    (explanation?.let { "\n${indent}Explanation: $it" } ?: "")
+                    explanation.let { "\n${indent}Explanation: $it" }
         )
     }
 

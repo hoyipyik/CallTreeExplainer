@@ -46,9 +46,9 @@ class CallTree(
         llMsCaller: LLMsCaller,
         neo4jService: Neo4jService
     ) {
-        val childExplanations: List<ChildNodesExplanation> = node.children.map { childNode ->
-            ChildNodesExplanation(childNode.methodName, childNode.explanation.toString())
-        }
+        val childExplanations: List<ChildNodesExplanation> = node.children
+            .filter { it.explanation.isNotEmpty() }
+            .map { childNode -> ChildNodesExplanation(childNode.methodName, childNode.explanation.toString()) }
         val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
         val newExplanation = llMsCaller.getAIExplanation(sourceCode, childExplanations)
         node.upgradeExplanation(newExplanation)
@@ -57,9 +57,9 @@ class CallTree(
         neo4jService.upgradeNodeSourceCode(node.id!!, sourceCode)
     }
 
-    fun writeTreeToJson(path2Save: String, jsonWritter: JSONService): Boolean {
+    fun writeTreeToJson(path2Save: String, jsonWriter: JSONService): Boolean {
         try {
-            rootNode?.let { jsonWritter.write2File(it, path2Save) }
+            rootNode?.let { jsonWriter.write2File(it, path2Save) }
             return true
         } catch (e: Exception) {
             println(e.message)

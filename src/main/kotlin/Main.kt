@@ -13,7 +13,8 @@ fun main() {
     val username: String = dotenv["NEO4J_USERNAME"]
     val password: String = dotenv["NEO4J_PASSWORD"]
     val llmPath: String = dotenv["LLAMA_PATH"]
-    val model: String = dotenv["LLAMA_WEIGHT_TYPE"]
+    val model: String = dotenv["AI_MODEL_TYPE"]
+    val ollmaUrl: String = dotenv["OLLAMA_URL"]
 
     val neo4j = Neo4jService(url, username, password)
     neo4j.deleteAll()
@@ -26,7 +27,7 @@ fun main() {
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
     callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
     // save to json
-    callTree.writeTreeToJson(jsonFilePath, jsonWriter)
+    callTree.writeTreeToJson(jsonFilePath, jsonService)
     // save to neo4j from empty
 //    callTree.getRootNode()?.let { neo4j.saveCallTree(it) }
     // print the tree

@@ -1,44 +1,26 @@
 package org.example.utils
 
 import org.example.domain.ChildNodesExplanation
+import org.example.model.ai.Option
+import org.example.model.ai.RequestData
+import org.example.model.ai.ResponseData
 import java.io.IOException
 
 class LLMsCaller(
-    private val llmPath: String,
-    private val model: String
+    private val networkService: NetworkService,
+    private val model: String = "llama3",
+    private val llmPath: String = ""
 ) {
     fun getAIExplanation(methodCode: String?, childrenExplanation: List<ChildNodesExplanation>): String{
         try {
             val prompt: String = generatePrompt(methodCode ?: "", childrenExplanation)
-            val res = fetchResFromAI(prompt)
+            val res = fetchResFromRemoteAI(prompt)
             return res
         }catch (e: Exception){
             println(e.message)
             return ""
         }
     }
-
-    /*
-    * Example of prompt on llama-3-8B
-    Give me a short summarize within 15 words, based on source code and other information provided below.
-    If there is no source code or other information after :, still try to give me summarization.
-    If both is missing, return empty string
-    Give answer in this format:
-    Answer: .....
-    Here is the source code:
-    void main(){
-        String b = func1();
-        String b2 = func2(b);
-        func3(b2)
-    }
-    Here is other information:
-    func1:
-    Read file from file system.
-    func2:
-    Turn the string to uppercase.
-    func3:
-    Save String to file system.
-    * */
 
     private fun generatePrompt(sourceCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
         val extractedChildData: List<String> = childrenExplanation.map { item ->
@@ -54,19 +36,27 @@ class LLMsCaller(
         return res
     }
 
-    private fun extractInfoFromRes(raw: String): String{
-            val startToken = "[/INST]"
-            val endToken = "</s>"
-
-            val startIndex = raw.indexOf(startToken) + startToken.length
-            val endIndex = raw.indexOf(endToken)
-
-            val resWithGreeting: String = raw.substring(startIndex, endIndex).trim()
-            return resWithGreeting
-//            return resWithGreeting.split(":")[1]
+    private fun extractInfoFromRemoteRes(resString: String): String{
+        try {
+            return resString.substringAfter("Answer:").trim()
+        }catch (e: Exception){
+            println(e.message)
+            return ""
+        }
     }
 
-    fun fetchResFromAI(prompt: String): String {
+    fun fetchResFromRemoteAI(prompt: String): String{
+        val option = Option(null, null, null, 0.1)
+        val reqData = RequestData(prompt, model, false, option)
+        val resData: ResponseData? = networkService.httpNoneStreamPostRequest(reqData)
+
+        if (resData != null) {
+            return extractInfoFromRemoteRes(resData.response)
+        }
+        return ""
+    }
+
+    private fun fetchResFromLocalAI(prompt: String): String {
         val processedPrompt = prompt.replace("\"", "\\\"")
         val command = listOf(
             "$llmPath/main.exe",
@@ -88,13 +78,24 @@ class LLMsCaller(
 
             // Wait for the process to terminate and check the exit value
             val exitCode = process.waitFor()
-            return extractInfoFromRes(output)
+            return extractInfoFromLocalRes(output)
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
         return ""
+    }
+    private fun extractInfoFromLocalRes(raw: String): String{
+        val startToken = "[/INST]"
+        val endToken = "</s>"
+
+        val startIndex = raw.indexOf(startToken) + startToken.length
+        val endIndex = raw.indexOf(endToken)
+
+        val resWithGreeting: String = raw.substring(startIndex, endIndex).trim()
+        return resWithGreeting
+//            return resWithGreeting.split(":")[1]
     }
 
 }
@@ -118,8 +119,31 @@ fun main(){
             "    Turn the string to uppercase.\n" +
             "    func3:\n" +
             "    Save String to file system."
-    val prompt2 = "What is apple inc"
-    val llm = LLMsCaller("src/main/llama.cpp", "llama-2-7b-chat.Q2_K.gguf")
-    val ans = llm.fetchResFromAI(prompt2)
+    val jsonService = JSONService()
+    val networkService = NetworkService("http://localhost:11434/api/generate", jsonService)
+    val llm = LLMsCaller(networkService)
+    val ans = llm.fetchResFromRemoteAI(prompt)
     println(ans)
 }
+
+/*
+ * Example of prompt on llama-3-8B
+ Give me a short summarize within 15 words, based on source code and other information provided below.
+ If there is no source code or other information after :, still try to give me summarization.
+ If both is missing, return empty string
+ Give answer in this format:
+ Answer: .....
+ Here is the source code:
+ void main(){
+     String b = func1();
+     String b2 = func2(b);
+     func3(b2)
+ }
+ Here is other information:
+ func1:
+ Read file from file system.
+ func2:
+ Turn the string to uppercase.
+ func3:
+ Save String to file system.
+ * */

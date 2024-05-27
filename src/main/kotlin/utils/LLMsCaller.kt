@@ -13,11 +13,8 @@ class LLMsCaller(
 ) {
     fun getAIExplanation(methodCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
         try {
-//            println("________")
-//            println(methodCode)
-//            println("________")
-//            println(childrenExplanation.size.toString() + " " + childrenExplanation.isEmpty())
-//            println("________")
+            println("----------")
+            println("children size: " + childrenExplanation.size)
             if(methodCode.isEmpty() && childrenExplanation.isEmpty()){
                 println("skip")
                 return ""
@@ -36,12 +33,13 @@ class LLMsCaller(
             item.methodName + ":\n" + item.explanation
         }
         val intro = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
-                "If there is no source code or other information after :, still try to give me summarization.\n" +
-                "If both is missing, return empty string\n" +
+//                "If there is no source code or other information after :, still try to give me summarization.\n" +
                 "Give answer in this format:\n" +
-                "Answer: ....."
-        val res = intro + "Here is the source code:\n" + sourceCode +
-                        "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n")
+                "Answer: <Short explanation>"
+
+        val sourceCodeStr = if (sourceCode.isEmpty()) "" else "Here is the source code:\n$sourceCode"
+        val moreInfoStr = if (childrenExplanation.isEmpty()) "" else "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n")
+        val res = intro +sourceCodeStr + moreInfoStr
         return res
     }
 

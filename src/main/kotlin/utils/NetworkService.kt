@@ -8,9 +8,6 @@ import org.example.model.ai.RequestData
 import org.example.model.ai.ResponseData
 import java.util.concurrent.TimeUnit
 
-
-
-
 class NetworkService(
     val url: String,
     private val jsonService: JSONService
@@ -32,7 +29,7 @@ class NetworkService(
     }
 
     private fun createClient(): OkHttpClient {
-        val client: OkHttpClient = OkHttpClient()
+        val client = OkHttpClient()
         client.setReadTimeout(2, TimeUnit.MINUTES)
         client.setWriteTimeout(2, TimeUnit.MINUTES)
         return client
@@ -68,10 +65,10 @@ class NetworkService(
 
 }
 
-fun main() {
-    val jsonService = JSONService()
-    val data = RequestData("Say Hi", "llama3", false, null)
-    val networkService = NetworkService("http://localhost:11434/api/generate", jsonService)
-    val backData = networkService.httpNoneStreamPostRequest(data)
-
-}
+//fun main() {
+//    val jsonService = JSONService()
+//    val data = RequestData("Say Hi", "llama3", false, null)
+//    val networkService = NetworkService("http://localhost:11434/api/generate", jsonService)
+//    val backData = networkService.httpNoneStreamPostRequest(data)
+//
+//}

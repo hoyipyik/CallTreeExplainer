@@ -107,31 +107,31 @@ class LLMsCaller(
 
 }
 
-fun main(){
-    val prompt = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
-            "    If there is no source code or other information after :, still try to give me summarization.\n" +
-            "    If both is missing, return empty string\n" +
-            "    Give answer in this format:\n" +
-            "    Answer: .....\n" +
-            "    Here is the source code:\n" +
-            "    void main(){\n" +
-            "        String b = func1();\n" +
-            "        String b2 = func2(b);\n" +
-            "        func3(b2)\n" +
-            "    }\n" +
-            "    Here is other information:\n" +
-            "    func1:\n" +
-            "    Read file from file system.\n" +
-            "    func2:\n" +
-            "    Turn the string to uppercase.\n" +
-            "    func3:\n" +
-            "    Save String to file system."
-    val jsonService = JSONService()
-    val networkService = NetworkService("http://localhost:11434/api/generate", jsonService)
-    val llm = LLMsCaller(networkService)
-    val ans = llm.fetchResFromRemoteAI(prompt)
-    println(ans)
-}
+//fun main(){
+//    val prompt = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
+//            "    If there is no source code or other information after :, still try to give me summarization.\n" +
+//            "    If both is missing, return empty string\n" +
+//            "    Give answer in this format:\n" +
+//            "    Answer: .....\n" +
+//            "    Here is the source code:\n" +
+//            "    void main(){\n" +
+//            "        String b = func1();\n" +
+//            "        String b2 = func2(b);\n" +
+//            "        func3(b2)\n" +
+//            "    }\n" +
+//            "    Here is other information:\n" +
+//            "    func1:\n" +
+//            "    Read file from file system.\n" +
+//            "    func2:\n" +
+//            "    Turn the string to uppercase.\n" +
+//            "    func3:\n" +
+//            "    Save String to file system."
+//    val jsonService = JSONService()
+//    val networkService = NetworkService("http://localhost:11434/api/generate", jsonService)
+//    val llm = LLMsCaller(networkService)
+//    val ans = llm.fetchResFromRemoteAI(prompt)
+//    println(ans)
+//}
 
 /*
  * Example of prompt on llama-3-8B

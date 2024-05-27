@@ -11,9 +11,18 @@ class LLMsCaller(
     private val model: String = "llama3",
     private val llmPath: String = ""
 ) {
-    fun getAIExplanation(methodCode: String?, childrenExplanation: List<ChildNodesExplanation>): String{
+    fun getAIExplanation(methodCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
         try {
-            val prompt: String = generatePrompt(methodCode ?: "", childrenExplanation)
+//            println("________")
+//            println(methodCode)
+//            println("________")
+//            println(childrenExplanation.size.toString() + " " + childrenExplanation.isEmpty())
+//            println("________")
+            if(methodCode.isEmpty() && childrenExplanation.isEmpty()){
+                println("skip")
+                return ""
+            }
+            val prompt: String = generatePrompt(methodCode, childrenExplanation)
             val res = fetchResFromRemoteAI(prompt)
             return res
         }catch (e: Exception){
@@ -134,16 +143,5 @@ fun main(){
  Give answer in this format:
  Answer: .....
  Here is the source code:
- void main(){
-     String b = func1();
-     String b2 = func2(b);
-     func3(b2)
- }
  Here is other information:
- func1:
- Read file from file system.
- func2:
- Turn the string to uppercase.
- func3:
- Save String to file system.
  * */

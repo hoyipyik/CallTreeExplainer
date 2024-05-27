@@ -61,7 +61,7 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String?) {
+    fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String) {
         execute { tx ->
             tx.run(
                 "MATCH (n) WHERE id(n) = \$nodeId SET n.sourceCode = \$newSourceCode RETURN n",

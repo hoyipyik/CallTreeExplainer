@@ -7,15 +7,18 @@ import io.github.cdimascio.dotenv.dotenv
 import java.io.File
 
 class SourceCodeFetcher {
-    fun fetchMethod(className: String, methodName: String): String? {
-        val sourceCode = extractSourceCodeFromFile(className)
-        return sourceCode?.let { extractMethodCode(methodName, it) }
+    fun fetchMethod(className: String, methodName: String): String {
+        val sourceCode: String? = extractSourceCodeFromFile(className)
+        if (sourceCode != null) {
+            return extractMethodCode(methodName, sourceCode)
+        }
+        return ""
     }
 
     private fun extractSourceCodeFromFile(className: String): String? {
         try {
             val path = getPath(className)
-            val content = path?.let { File(it).readText().trimIndent()  }
+            val content = path?.let { File(it).readText().trimIndent() }
             return content
         }catch (e: Exception){
             println(e.message)
@@ -39,7 +42,7 @@ class SourceCodeFetcher {
 
     }
 
-    private fun extractMethodCode(methodName: String, sourceCode: String): String? {
+    private fun extractMethodCode(methodName: String, sourceCode: String): String {
         try {
             val parser = JavaParser()
             val cu: CompilationUnit = parser.parse(sourceCode).result.get()
@@ -50,10 +53,10 @@ class SourceCodeFetcher {
                     return method.toString()
                 }
             }
-            return null
+            return ""
         }catch (e: Exception){
             println(e.message)
-            return null
+            return ""
         }
 
     }

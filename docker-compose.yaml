@@ -5,6 +5,9 @@ services:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - /data/neo4j-data:/data
+      - ./data/neo4j-data:/data  # maps local directory to container's /data
+      - ./data/neo3-logs:/logs  # maps local logs directory
+      - ./data/neo4j-import:/var/lib/neo4j/import  # for placing import files
+      - ./data/neo4j-plugins:/plugins  # for Neo4j plugins
     environment:
       NEO4J_AUTH: neo4j/testpassword

@@ -11,6 +11,7 @@ class CallTreeNode(
     val selfTime: Int,
     val lineNumber: Int,
     val percent: Double,
+    val childIndex: Int? = null,
     val parent: CallTreeNode? = null,
     var explanation: String = "",
     var sourceCode: String = "",

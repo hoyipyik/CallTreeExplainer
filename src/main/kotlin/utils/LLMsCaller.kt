@@ -52,7 +52,7 @@ class LLMsCaller(
                             if (childrenExplanation.isEmpty()) "" else " and other information"
                 sourceCodeStr = "$sourceSlice is provided below:\n"
             }else{
-                println("Is source empty 🤔(Due to lack of the source code or parser error)")
+                println("Source is empty 🤔(Due to lack of the source code or parser error)")
                 sourceCodeStr = "This is a parent method named, give me a explanation for the work it has done, based on the information below:\n"
             }
         } else {

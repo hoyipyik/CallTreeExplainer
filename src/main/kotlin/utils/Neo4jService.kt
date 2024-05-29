@@ -79,6 +79,15 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
+    fun upgradeChildNodes(nodeId: Long, childNodes: List<String>) {
+        execute { tx ->
+            tx.run(
+                "MATCH (n) WHERE id(n) = \$nodeId SET n.childNodes = \$childNodes RETURN n",
+                mapOf("nodeId" to nodeId, "childNodes" to childNodes)
+            )
+        }
+    }
+
 
     private fun createNode(tx: TransactionContext, node: CallTreeNode): Long {
         val query = """

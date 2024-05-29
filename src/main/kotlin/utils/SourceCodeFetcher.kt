@@ -4,21 +4,26 @@ import com.github.javaparser.JavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
 import io.github.cdimascio.dotenv.dotenv
+import model.tool.SourceFetcherData
 import java.io.File
 
 class SourceCodeFetcher {
-    fun fetchMethod(className: String, methodName: String): String {
-        val sourceCode: String? = extractSourceCodeFromFile(className)
-        if (sourceCode != null) {
-            return extractMethodCode(methodName, sourceCode)
+    fun fetchMethod(className: String, methodName: String): SourceFetcherData {
+        val res: SourceFetcherData = when (val sourceCode: String? = extractSourceCodeFromFile(className)) {
+            null -> SourceFetcherData("", className, methodName, false)
+            "libs" -> SourceFetcherData("", className, methodName, true)
+            else -> SourceFetcherData(extractMethodCode(methodName, sourceCode), className, methodName, false)
         }
-        return ""
+        return res
     }
 
     private fun extractSourceCodeFromFile(className: String): String? {
         try {
-            val path = getPath(className)
-            val content = path?.let { File(it).readText().trimIndent() }
+            val content = when (val path = getPath(className)) {
+                null -> null
+                "libs" -> "libs"
+                else -> File(path).readText().trimIndent()
+            }
             return content
         } catch (e: Exception) {
             println(e.message)
@@ -32,7 +37,7 @@ class SourceCodeFetcher {
             val basePath = dotenv["SOURCE_CODE"]
             val res = when (className.first()) {
                 'C' -> basePath + className.replace('.', '/') + ".java"
-                else -> null
+                else -> "libs"
             }
             return res
         } catch (e: Exception) {

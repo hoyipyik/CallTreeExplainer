@@ -40,7 +40,6 @@ bin/
 
 ### VS Code ###
 .vscode/
-.env
 
 ### Mac OS ###
 .DS_Store

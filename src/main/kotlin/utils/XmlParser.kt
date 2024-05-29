@@ -60,14 +60,18 @@ class XmlParser(
             }
 
             val nodeList = nodeElement.childNodes
+            var index = -1
+            val childClassName: MutableList<String> = mutableListOf()
             for (i in 0 until nodeList.length) {
                 val tempNode = nodeList.item(i)
                 if (tempNode.nodeType == Node.ELEMENT_NODE) {
-                    parseNode(tempNode as Element, callTreeNode, currentNodeId)?.let {
+                    childClassName.add((tempNode as Element).getAttribute("class"))
+                    parseNode(tempNode, callTreeNode, currentNodeId, ++index)?.let {
                         callTreeNode.addChild(it)
                     }
                 }
             }
+            neo4jService.upgradeChildNodes(currentNodeId, childClassName)
             return callTreeNode
         }catch (e:Exception){
             e.printStackTrace()

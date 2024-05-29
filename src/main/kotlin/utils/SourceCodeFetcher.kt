@@ -20,13 +20,13 @@ class SourceCodeFetcher {
             val path = getPath(className)
             val content = path?.let { File(it).readText().trimIndent() }
             return content
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println(e.message)
             return null
         }
     }
 
-    private fun getPath(className: String): String?{
+    private fun getPath(className: String): String? {
         try {
             val dotenv = dotenv()
             val basePath = dotenv["SOURCE_CODE"]
@@ -35,7 +35,7 @@ class SourceCodeFetcher {
                 else -> null
             }
             return res
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println(e.message)
             return null
         }
@@ -54,7 +54,7 @@ class SourceCodeFetcher {
                 }
             }
             return ""
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println(e.message)
             return ""
         }

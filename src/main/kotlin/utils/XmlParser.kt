@@ -26,7 +26,7 @@ class XmlParser(
 
             val root = doc.documentElement
             if (root.nodeName == "tree") {
-                return parseNode(root, null, null)
+                return parseNode(root, null, null, -1)
             }
             return null
         }catch (e : Exception) {
@@ -35,7 +35,7 @@ class XmlParser(
         }
     }
 
-    private fun parseNode(nodeElement: Element, parentNode: CallTreeNode?, parentNodeId: Long?): CallTreeNode? {
+    private fun parseNode(nodeElement: Element, parentNode: CallTreeNode?, parentNodeId: Long?, childIndex: Int): CallTreeNode? {
         try {
             val nodeType = nodeElement.nodeName
             val leaf = nodeElement.getAttribute("leaf").toBoolean()
@@ -49,7 +49,7 @@ class XmlParser(
             val percent = nodeElement.getAttribute("percent").toDoubleOrNull() ?: 0.0
 
             val callTreeNode = CallTreeNode(
-                nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent, parentNode
+                nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent, childIndex, "", parentNode
             )
 
             val currentNodeId = neo4jService.addNode(callTreeNode)!!

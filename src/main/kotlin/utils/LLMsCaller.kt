@@ -1,9 +1,11 @@
 package org.example.utils
 
+import model.tool.SourceFetcherData
 import org.example.domain.ChildNodesExplanation
 import org.example.model.ai.Option
 import org.example.model.ai.RequestData
 import org.example.model.ai.ResponseData
+import org.example.model.tool.ExplanationData
 import java.io.IOException
 
 class LLMsCaller(
@@ -11,24 +13,27 @@ class LLMsCaller(
     private val model: String = "llama3",
     private val llmPath: String = ""
 ) {
-    fun getAIExplanation(methodCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
+    fun getAIExplanation(
+        rawSource: SourceFetcherData,
+        childrenExplanation: List<ChildNodesExplanation>
+    ): ExplanationData {
         try {
             println("----------")
             println("children size: " + childrenExplanation.size)
-            if(methodCode.isEmpty() && childrenExplanation.isEmpty()){
-                println("skip")
-                return ""
+            if (rawSource.sourceCode.isEmpty() && childrenExplanation.isEmpty() && !rawSource.isLib) {
+                println("skip 😒: no children, no sourceCode, not a lib")
+                return ExplanationData("", "")
             }
-            val prompt: String = generatePrompt(methodCode, childrenExplanation)
+            val prompt: String = generatePrompt(rawSource, childrenExplanation)
             val res = fetchResFromRemoteAI(prompt)
-            return res
-        }catch (e: Exception){
+            return ExplanationData(res, prompt)
+        } catch (e: Exception) {
             println(e.message)
-            return ""
+            return ExplanationData("", "")
         }
     }
 
-    private fun generatePrompt(sourceCode: String, childrenExplanation: List<ChildNodesExplanation>): String{
+    private fun generatePrompt(rawSource: SourceFetcherData, childrenExplanation: List<ChildNodesExplanation>): String {
         val extractedChildData: List<String> = childrenExplanation.map { item ->
             item.methodName + ":\n" + item.explanation
         }

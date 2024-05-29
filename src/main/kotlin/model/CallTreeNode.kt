@@ -11,6 +11,8 @@ class CallTreeNode(
     val selfTime: Int,
     val lineNumber: Int,
     val percent: Double,
+    val childIndex: Int = -1,
+    var prompt: String = "",
     val parent: CallTreeNode? = null,
     var explanation: String = "",
     var sourceCode: String = "",
@@ -24,6 +26,10 @@ class CallTreeNode(
 
     fun upgradeExplanation(newExplanation: String) {
         explanation = newExplanation
+    }
+
+    fun upgradePrompt(newPrompt: String) {
+        prompt = newPrompt
     }
 
     fun upgradeNodeId(newNodeId: Long) {

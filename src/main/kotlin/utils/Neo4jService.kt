@@ -61,6 +61,15 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
+    fun upgradeNodePrompt(nodeId: Long, newPrompt: String) {
+        execute { tx ->
+            tx.run(
+                "MATCH (n) WHERE id(n) = \$nodeId SET n.prompt = \$newPrompt RETURN n",
+                mapOf("nodeId" to nodeId, "newPrompt" to newPrompt)
+            )
+        }
+    }
+
     fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String) {
         execute { tx ->
             tx.run(
@@ -84,6 +93,8 @@ class Neo4jService(url: String, username: String, password: String) {
                 selfTime: ${'$'}selfTime,
                 lineNumber: ${'$'}lineNumber,
                 percent: ${'$'}percent,
+                childIndex: ${'$'}childIndex,
+                prompt: ${'$'}prompt,
                 explanation: ${'$'}explanation,
                 sourceCode: ${'$'}sourceCode,
                 parentNode: ${'$'}parentNode,
@@ -101,6 +112,8 @@ class Neo4jService(url: String, username: String, password: String) {
             "selfTime" to node.selfTime,
             "lineNumber" to node.lineNumber,
             "percent" to node.percent,
+            "childIndex" to node.childIndex,
+            "prompt" to node.prompt,
             "explanation" to node.explanation,
             "sourceCode" to node.sourceCode,
             "parentNode" to (node.parent?.className?.takeIf { it.isNotEmpty() } ?: "root"),

@@ -43,22 +43,23 @@ class LLMsCaller(
         return res
     }
 
-    private fun extractInfoFromRemoteRes(resString: String): String{
+    private fun extractInfoFromRemoteRes(resString: String): String {
         try {
             return resString.substringAfter("Answer:").trim()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println(e.message)
             return ""
         }
     }
 
-    fun fetchResFromRemoteAI(prompt: String): String{
+    private fun fetchResFromRemoteAI(prompt: String): String {
         val option = Option(null, null, null, 0.1)
         val reqData = RequestData(prompt, model, false, option)
         val resData: ResponseData? = networkService.httpNoneStreamPostRequest(reqData)
 
         if (resData != null) {
             return extractInfoFromRemoteRes(resData.response)
+//            return resData.response
         }
         return ""
     }
@@ -93,7 +94,8 @@ class LLMsCaller(
         }
         return ""
     }
-    private fun extractInfoFromLocalRes(raw: String): String{
+
+    private fun extractInfoFromLocalRes(raw: String): String {
         val startToken = "[/INST]"
         val endToken = "</s>"
 

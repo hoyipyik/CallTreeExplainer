@@ -4,6 +4,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 .env
+/data/*
 
 /src/main/resources/sourceCode/jhotdraw
 ### IntelliJ IDEA ###

@@ -1,6 +1,8 @@
 package org.example.model
 
+import model.tool.SourceFetcherData
 import org.example.domain.ChildNodesExplanation
+import org.example.model.tool.ExplanationData
 import org.example.utils.JSONService
 import org.example.utils.LLMsCaller
 import org.example.utils.Neo4jService
@@ -49,12 +51,15 @@ class CallTree(
         val childExplanations: List<ChildNodesExplanation> = node.children
             .filter { it.explanation.isNotEmpty() }
             .map { childNode -> ChildNodesExplanation(childNode.methodName, childNode.explanation) }
-        val sourceCode = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
-        val newExplanation = llMsCaller.getAIExplanation(sourceCode, childExplanations)
-        node.upgradeExplanation(newExplanation)
-        node.upgradeSourceCode(sourceCode)
-        neo4jService.upgradeNodeExplanation(node.id!!, newExplanation)
-        neo4jService.upgradeNodeSourceCode(node.id!!, sourceCode)
+        val rawSourceData: SourceFetcherData = sourceCodeFetcher.fetchMethod(node.className, node.methodName)
+        val rawExplanationData: ExplanationData = llMsCaller.getAIExplanation(rawSourceData, childExplanations)
+        // upgrade the properties
+        node.upgradePrompt(rawExplanationData.prompt)
+        node.upgradeExplanation(rawExplanationData.explanation)
+        node.upgradeSourceCode(rawSourceData.sourceCode)
+        neo4jService.upgradeNodePrompt(node.id!!, rawExplanationData.prompt)
+        neo4jService.upgradeNodeExplanation(node.id!!, rawExplanationData.explanation)
+        neo4jService.upgradeNodeSourceCode(node.id!!, rawSourceData.sourceCode)
     }
 
     fun writeTreeToJson(path2Save: String, jsonWriter: JSONService): Boolean {

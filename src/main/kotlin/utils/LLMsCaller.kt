@@ -32,14 +32,39 @@ class LLMsCaller(
         val extractedChildData: List<String> = childrenExplanation.map { item ->
             item.methodName + ":\n" + item.explanation
         }
-        val intro = "Give me a short summarize within 15 words, based on source code and other information provided below.\n" +
-//                "If there is no source code or other information after :, still try to give me summarization.\n" +
-                "Give answer in this format:\n" +
-                "Answer: <Short explanation>"
+        val sourceCode: String = rawSource.sourceCode
+        val methodName: String = rawSource.methodName
+        val packageName: String = rawSource.packageName
+        // sourceCode
+            // empty source
+            // libs
+        val sourceCodeStr: String
+        if (rawSource.sourceCode.isEmpty()) {
+            if (rawSource.isLib) {
+                println("Is lib 📖")
+                val sourceSlice =
+                    "Give me a summarization for this method $methodName, based on explanation to this Java lib: $packageName" +
+                            if (childrenExplanation.isEmpty()) "" else " and other information"
+                sourceCodeStr = "$sourceSlice is provided below:\n"
+            }else{
+                println("Is source empty 🤔(Due to lack of the source code or parser error)")
+                sourceCodeStr = "This is a parent method named, give me a explanation for the work it has done, based on the information below:\n"
+            }
+        } else {
+            println("Has source code 😎")
+            val sourceCodeSlice = "Give me a summarization for this method $methodName(don't forget to mention the parameters of methods), based on source code" +
+                    if (childrenExplanation.isEmpty()) "" else "and other information"
+            sourceCodeStr = sourceCodeSlice + "provided below.\n" +
+                "\nHere is the source code:\n" + sourceCode + "\n"
 
-        val sourceCodeStr = if (sourceCode.isEmpty()) "" else "Here is the source code:\n$sourceCode"
-        val moreInfoStr = if (childrenExplanation.isEmpty()) "" else "\nHere is other information:\n" + extractedChildData.joinToString(separator = "\n")
-        val res = intro +sourceCodeStr + moreInfoStr
+        }
+        // children
+        val moreInfoStr =
+            if (childrenExplanation.isEmpty()) "" else "\nHere is other information:\n" + extractedChildData.joinToString(
+                separator = "\n"
+            )
+        val formatStr = "\nPlease answer with 100 to 250 words, in this format:\n" + "Answer: <your answer>"
+        val res = sourceCodeStr + moreInfoStr + formatStr
         return res
     }
 

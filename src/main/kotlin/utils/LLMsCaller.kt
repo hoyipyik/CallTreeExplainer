@@ -18,7 +18,7 @@ class LLMsCaller(
         childrenExplanation: List<ChildNodesExplanation>
     ): ExplanationData {
         try {
-            println("----------")
+//            println("----------")
             println("children size: " + childrenExplanation.size)
             if (rawSource.sourceCode.isEmpty() && childrenExplanation.isEmpty() && !rawSource.isLib) {
                 println("skip 😒: no children, no sourceCode, not a lib")
@@ -52,14 +52,14 @@ class LLMsCaller(
                             if (childrenExplanation.isEmpty()) "" else " and other information"
                 sourceCodeStr = "$sourceSlice is provided below:\n"
             }else{
-                println("Source is empty 🤔(Due to lack of the source code or parser error)")
-                sourceCodeStr = "This is a parent method named, give me a explanation for the work it has done, based on the information below:\n"
+                println("Source is empty 🤔(Due to lack of the source code / parser error, or this is the Root node)")
+                sourceCodeStr = "I am explaining a Java call tree, this is a parent node, give me a explanation for this node, put the information below together:\n"
             }
         } else {
             println("Has source code 😎")
-            val sourceCodeSlice = "Give me a summarization for this method $methodName(don't forget to mention the parameters of methods), based on source code" +
+            val sourceCodeSlice = "Give me a summarization for this method (don't forget to mention the parameters of methods), based on source code " +
                     if (childrenExplanation.isEmpty()) "" else "and other information"
-            sourceCodeStr = sourceCodeSlice + "provided below.\n" +
+            sourceCodeStr = sourceCodeSlice + " provided below.\n" +
                 "\nHere is the source code:\n" + sourceCode + "\n"
 
         }
@@ -68,7 +68,7 @@ class LLMsCaller(
             if (childrenExplanation.isEmpty()) "" else "\nHere is other information:\n" + extractedChildData.joinToString(
                 separator = "\n"
             )
-        val formatStr = "\nPlease answer with 100 to 250 words, in this format:\n" + "Answer: <your answer>"
+        val formatStr = "\nPlease answer with 50 to 150 words, in this format:\n" + "Answer: <your answer>"
         val res = sourceCodeStr + moreInfoStr + formatStr
         return res
     }

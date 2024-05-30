@@ -28,7 +28,7 @@ Username is `neo4j`, password is `testpassword`
 
 ### LLMs
 
-#### Ollama
+#### Ollama (Recommand)
 
 Ollama provides restful API support, which can be deployed via Docker. [See here](https://ollama.com/blog/ollama-is-now-available-as-an-official-docker-image)
 
@@ -39,7 +39,7 @@ docker exec -it ollama ollama pull llama3;
 docker exec -it ollama ollama run llama3;
 ```
 
-#### llama.cpp
+#### llama.cpp (Legacy)
   Here, we use `llama.cpp`to run LLama AI.
 
   Please clone within `src/main/` folder.

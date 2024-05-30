@@ -1,4 +1,4 @@
-package model.tool
+package org.example.domain
 
 data class SourceFetcherData(
     val sourceCode: String,

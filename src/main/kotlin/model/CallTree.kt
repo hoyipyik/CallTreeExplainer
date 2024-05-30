@@ -1,8 +1,8 @@
 package org.example.model
 
-import model.tool.SourceFetcherData
+import org.example.domain.SourceFetcherData
 import org.example.domain.ChildNodesExplanation
-import org.example.model.tool.ExplanationData
+import org.example.domain.ExplanationData
 import org.example.utils.JSONService
 import org.example.utils.LLMsCaller
 import org.example.utils.Neo4jService

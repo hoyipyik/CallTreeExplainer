@@ -5,7 +5,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import io.github.cdimascio.dotenv.dotenv
-import model.tool.SourceFetcherData
+import org.example.domain.SourceFetcherData
 import java.io.File
 
 class SourceCodeFetcher {

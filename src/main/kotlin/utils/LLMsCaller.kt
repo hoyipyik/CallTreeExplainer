@@ -1,11 +1,11 @@
 package org.example.utils
 
-import model.tool.SourceFetcherData
+import org.example.domain.SourceFetcherData
 import org.example.domain.ChildNodesExplanation
-import org.example.model.ai.Option
-import org.example.model.ai.RequestData
-import org.example.model.ai.ResponseData
-import org.example.model.tool.ExplanationData
+import org.example.domain.ai.Option
+import org.example.domain.ai.RequestData
+import org.example.domain.ai.ResponseData
+import org.example.domain.ExplanationData
 import java.io.IOException
 
 class LLMsCaller(

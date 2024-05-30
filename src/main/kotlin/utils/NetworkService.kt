@@ -4,8 +4,8 @@ import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import com.squareup.okhttp.RequestBody
-import org.example.model.ai.RequestData
-import org.example.model.ai.ResponseData
+import org.example.domain.ai.RequestData
+import org.example.domain.ai.ResponseData
 import java.util.concurrent.TimeUnit
 
 class NetworkService(

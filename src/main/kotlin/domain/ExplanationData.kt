@@ -1,4 +1,4 @@
-package org.example.model.tool
+package org.example.domain
 
 data class ExplanationData(
     val explanation: String,

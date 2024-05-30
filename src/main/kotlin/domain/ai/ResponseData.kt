@@ -1,4 +1,4 @@
-package org.example.model.ai
+package org.example.domain.ai
 
 data class ResponseData(
     val model: String,

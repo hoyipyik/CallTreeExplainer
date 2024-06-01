@@ -2,8 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/main/llama.cpp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/src/main/llama.cpp/kompute" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/main/resources/sourceCode/JHotDraw" vcs="Git" />
   </component>
 </project>

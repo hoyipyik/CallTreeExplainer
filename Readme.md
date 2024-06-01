@@ -6,6 +6,17 @@ This is a code explainer focusing on explaining Java call tree via LLMs.
 
 ### Neo4j
 
+#### Using Neo4j Desktop (Recommand)
+
+Neo4j Desktop supports multi-database feature, so that you can keep more than one instance at the same time.
+
+1. Install from Neo4j Desktop official website. [(Here)](https://neo4j.com/download/)
+2. Create a new project, add Local DBMS and change the password to `testpassword`.
+  ![img_1.png](img_1.png)
+3. Start the service.
+
+#### Run on Docker (No multi database support)
+
 Install Docker and use docker compose to start
   ```bash
   docker compose up

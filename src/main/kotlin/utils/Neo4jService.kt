@@ -1,6 +1,6 @@
 package org.example.utils
 
-import org.example.model.CallTreeNode
+import org.example.model.explaintree.CallTreeNode
 import org.neo4j.driver.*
 
 class Neo4jService(url: String, username: String, password: String, dbName: String) {

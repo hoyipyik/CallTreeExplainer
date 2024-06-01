@@ -1,4 +1,4 @@
-package org.example.model
+package org.example.model.explaintree
 
 import org.example.domain.SourceFetcherData
 import org.example.domain.ChildNodesExplanation

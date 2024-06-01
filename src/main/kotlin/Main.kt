@@ -1,7 +1,7 @@
 package org.example
 
 import io.github.cdimascio.dotenv.dotenv
-import org.example.model.CallTree
+import org.example.model.explaintree.CallTree
 import org.example.utils.*
 
 fun main() {
@@ -34,7 +34,7 @@ fun main() {
     val llMsCaller = LLMsCaller(networkService, model, llmPath)
 
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
-//    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
+    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
 //    // save to json
 //    callTree.writeTreeToJson(jsonFilePath, jsonService)
 }

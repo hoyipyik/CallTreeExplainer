@@ -3,7 +3,7 @@ package org.example.utils
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 
-import org.example.model.CallTreeNode
+import org.example.model.explaintree.CallTreeNode
 import java.io.FileWriter
 
 class JSONService {

@@ -1,7 +1,7 @@
 package org.example.utils
 
-import org.example.model.CallTree
-import org.example.model.CallTreeNode
+import org.example.model.explaintree.CallTree
+import org.example.model.explaintree.CallTreeNode
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.io.File

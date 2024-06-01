@@ -1,38 +1,79 @@
 package org.example.utils
 
 import org.example.model.CallTreeNode
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.Driver
-import org.neo4j.driver.GraphDatabase
-import org.neo4j.driver.TransactionContext
+import org.neo4j.driver.*
 
-class Neo4jService(url: String, username: String, password: String) {
+class Neo4jService(url: String, username: String, password: String, dbName: String) {
     private val driver: Driver = GraphDatabase.driver(url, AuthTokens.basic(username, password))
+    private val databaseName = dbName
 
     fun close() {
         driver.close()
     }
 
-    fun deleteAll() {
-        execute { tx ->
-            tx.run("MATCH (n:CallTreeNode) DETACH DELETE n")
+    fun createDatabase(databaseName: String = this.databaseName) {
+        try {
+            driver.session().use { session ->
+                session.executeWrite { tx ->
+                    val result = tx.run("CREATE DATABASE $databaseName")
+                    result.consume() // Ensure you consume the result if it's needed
+                    "Database $databaseName created successfully"
+                }.also { println(it) }
+            }
+        } catch (e: Exception) {
+            println(e.message)
+            println("database create failure")
         }
-        println("Neo4j has deleted all old nodes")
+    }
+
+    fun deleteAll() {
+        try {
+            driver.session().use { session ->
+                session.executeWrite { tx ->
+                    val result = tx.run("MATCH (n:CallTreeNode) DETACH DELETE n")
+                    result.consume()
+                }
+            }
+            println("Neo4j has deleted all old nodes")
+        }catch (e: Exception){
+            println(e.message)
+            println("Delete all failed")
+        }
+    }
+
+    fun dropDatabaseByName(databaseName: String = this.databaseName) {
+            execute(databaseName) { tx ->
+                try {
+                    tx.run("DROP DATABASE $databaseName")
+                    println("Database $databaseName have been dropped")
+                }catch (e: Exception){
+                    println(e.message)
+                    println("Drop database by name failed")
+                }
+            }
     }
 
     // save the whole call tree from empty
-    fun saveCallTree(root: CallTreeNode) {
-        execute { tx ->
+    fun saveCallTree(root: CallTreeNode, databaseName: String = this.databaseName) {
+        execute(databaseName) { tx ->
             val rootNodeId = createNode(tx, root)
             addChildren(tx, rootNodeId, root)
         }
     }
 
-    fun addNode(node: CallTreeNode): Long? {
+    fun addNode(node: CallTreeNode, databaseName: String = this.databaseName): Long? {
         try {
-            return driver.session().use { session ->
-                session.executeWrite { tx ->
-                    createNode(tx, node)
+            return if(databaseName.isEmpty()){
+                driver.session().use { session ->
+                    session.executeWrite { tx ->
+                        createNode(tx, node)
+                    }
+                }
+            }else{
+                driver.session(SessionConfig.forDatabase(databaseName)).use { session ->
+                    session.executeWrite { tx ->
+                        createNode(tx, node)
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -42,8 +83,8 @@ class Neo4jService(url: String, username: String, password: String) {
 
     }
 
-    fun connectNode(parentId: Long, childId: Long) {
-        execute { tx ->
+    fun connectNode(parentId: Long, childId: Long, databaseName: String = this.databaseName) {
+        execute(databaseName) { tx ->
             tx.run(
                 "MATCH (p), (c) WHERE id(p) = ${'$'}parentId AND id(c) = ${'$'}childId CREATE (p)-[:CALL]->(c)",
                 mapOf("parentId" to parentId, "childId" to childId)
@@ -51,9 +92,9 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    fun upgradeNodeExplanation(nodeId: Long, newExplanation: String) {
+    fun upgradeNodeExplanation(nodeId: Long, newExplanation: String, databaseName: String = this.databaseName) {
         println("Upgrade explanation for $nodeId, $newExplanation")
-        execute { tx ->
+        execute(databaseName) { tx ->
             tx.run(
                 "MATCH (n) WHERE id(n) = \$nodeId SET n.explanation = \$newExplanation RETURN n",
                 mapOf("nodeId" to nodeId, "newExplanation" to newExplanation)
@@ -61,8 +102,8 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    fun upgradeNodePrompt(nodeId: Long, newPrompt: String) {
-        execute { tx ->
+    fun upgradeNodePrompt(nodeId: Long, newPrompt: String, databaseName: String = this.databaseName) {
+        execute(databaseName) { tx ->
             tx.run(
                 "MATCH (n) WHERE id(n) = \$nodeId SET n.prompt = \$newPrompt RETURN n",
                 mapOf("nodeId" to nodeId, "newPrompt" to newPrompt)
@@ -70,8 +111,8 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String) {
-        execute { tx ->
+    fun upgradeNodeSourceCode(nodeId: Long, newSourceCode: String, databaseName: String = this.databaseName) {
+        execute(databaseName) { tx ->
             tx.run(
                 "MATCH (n) WHERE id(n) = \$nodeId SET n.sourceCode = \$newSourceCode RETURN n",
                 mapOf("nodeId" to nodeId, "newSourceCode" to newSourceCode)
@@ -79,8 +120,8 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    fun upgradeChildNodes(nodeId: Long, childNodes: List<String>) {
-        execute { tx ->
+    fun upgradeChildNodes(nodeId: Long, childNodes: List<String>, databaseName: String = this.databaseName) {
+        execute(databaseName) { tx ->
             tx.run(
                 "MATCH (n) WHERE id(n) = \$nodeId SET n.childNodes = \$childNodes RETURN n",
                 mapOf("nodeId" to nodeId, "childNodes" to childNodes)
@@ -141,11 +182,19 @@ class Neo4jService(url: String, username: String, password: String) {
         }
     }
 
-    private fun execute(operation: (tx: TransactionContext) -> Unit) {
+    private fun execute(databaseName:String = this.databaseName, operation: (tx: TransactionContext) -> Unit) {
         try {
-            driver.session().use { session ->
-                session.executeWrite { tx ->
-                    operation(tx)
+            if(databaseName.isEmpty()) {
+                driver.session().use { session ->
+                    session.executeWrite { tx ->
+                        operation(tx)
+                    }
+                }
+            }else {
+                driver.session(SessionConfig.forDatabase(databaseName)).use { session ->
+                    session.executeWrite { tx ->
+                        operation(tx)
+                    }
                 }
             }
         } catch (e: Exception) {

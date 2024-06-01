@@ -7,6 +7,7 @@ import org.example.utils.*
 fun main() {
     println("Code Explainer Started 😎")
     val dotenv = dotenv()
+    val isNeo4jInDocker: Boolean = dotenv["IS_NEO4J_IN_DOCKER"]?.toBoolean() ?: false
     val callTreePath: String = dotenv["CALL_TREE"]
     val jsonFilePath: String = dotenv["JSON_FILE_PATH"]
     val url: String = dotenv["NEO4J_URL"]
@@ -15,9 +16,17 @@ fun main() {
     val llmPath: String = dotenv["LLAMA_PATH"]
     val model: String = dotenv["AI_MODEL_TYPE"]
     val ollmaUrl: String = dotenv["OLLAMA_URL"]
+    val dbName =
+        if (isNeo4jInDocker) callTreePath.split("/").last().split(".").first().replace("_", "").lowercase() else ""
 
-    val neo4j = Neo4jService(url, username, password)
-    neo4j.deleteAll()
+    val neo4j = Neo4jService(url, username, password, dbName)
+    if (isNeo4jInDocker) {
+        neo4j.dropDatabaseByName()
+        neo4j.createDatabase()
+    }else{
+        neo4j.deleteAll()
+    }
+
     val xmlParser = XmlParser(neo4j)
     val sourceCodeFetcher = SourceCodeFetcher()
     val jsonService = JSONService()
@@ -25,11 +34,7 @@ fun main() {
     val llMsCaller = LLMsCaller(networkService, model, llmPath)
 
     val callTree: CallTree = xmlParser.constructCallTreeFromPath(callTreePath)
-    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
-    // save to json
-    callTree.writeTreeToJson(jsonFilePath, jsonService)
-    // save to neo4j from empty
-//    callTree.getRootNode()?.let { neo4j.saveCallTree(it) }
-    // print the tree
-//    callTree.printCallTree()
+//    callTree.iterateAndUpgradeExplanation(sourceCodeFetcher, llMsCaller, neo4jService = neo4j)
+//    // save to json
+//    callTree.writeTreeToJson(jsonFilePath, jsonService)
 }

@@ -1,13 +1,35 @@
 services:
-  neo4j:
-    image: neo4j:latest
+#  neo4j:
+#    image: neo4j:latest
+#    ports:
+#      - "7474:7474"
+#      - "7687:7687"
+#    volumes:
+#      - ./data/neo4j-data:/data  # maps local directory to container's /data
+#      - ./data/neo3-logs:/logs  # maps local logs directory
+#      - ./data/neo4j-import:/var/lib/neo4j/import  # for placing import files
+#      - ./data/neo4j-plugins:/plugins  # for Neo4j plugins
+#    environment:
+#      NEO4J_AUTH: neo4j/testpassword
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb2
     ports:
-      - "7474:7474"
-      - "7687:7687"
-    volumes:
-      - ./data/neo4j-data:/data  # maps local directory to container's /data
-      - ./data/neo3-logs:/logs  # maps local logs directory
-      - ./data/neo4j-import:/var/lib/neo4j/import  # for placing import files
-      - ./data/neo4j-plugins:/plugins  # for Neo4j plugins
+      - "27017:27017"
     environment:
-      NEO4J_AUTH: neo4j/testpassword
+      MONGO_INITDB_ROOT_USERNAME: mongoUser
+      MONGO_INITDB_ROOT_PASSWORD: testpassword
+    volumes:
+      - ./data/mongodb_data:/data/db
+#  postgres:
+#    image: postgres:latest
+#    ports:
+#      - "5432:5432"  # Default PostgreSQL port
+#    volumes:
+#      - ./data/postgres-data:/var/lib/postgresql/data  # Persistent data storage
+#      - ./data/postgres-logs:/var/log/postgresql  # Log storage
+#      - ./data/postgres-config:/etc/postgresql  # Configuration files
+#    environment:
+#      POSTGRES_DB: analysis_db
+#      POSTGRES_USER: postuser
+#      POSTGRES_PASSWORD: testpassword

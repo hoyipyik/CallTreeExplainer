@@ -6,35 +6,56 @@ import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import io.github.cdimascio.dotenv.dotenv
 import org.example.domain.SourceFetcherData
+import org.example.model.analysis.AnalysisData
 import java.io.File
 
-class SourceCodeFetcher {
+class SourceCodeFetcher(private val mongoDBService: MongoDBService) {
     fun fetchMethod(className: String, methodName: String): SourceFetcherData {
-        val res: SourceFetcherData = when (val sourceCode: String? = extractSourceCodeFromFile(className)) {
+        val res: SourceFetcherData = when (val sourceCode: String? = getSourceCode(className, methodName)) {
             null -> {
                 println("empty 😃")
                 SourceFetcherData("", className, methodName, false)
             }
 
             "libs" -> {
-                println("java libs 😖")
+                println("java libs 😐")
                 SourceFetcherData("", className, methodName, true)
             }
 
             else -> {
                 println("source code 😆")
-                SourceFetcherData(extractMethodCode(methodName, sourceCode, className), className, methodName, false)
+                SourceFetcherData(sourceCode, className, methodName, false)
             }
         }
         return res
     }
 
-    private fun extractSourceCodeFromFile(className: String): String? {
+    private fun getSourceCode(className: String, methodName: String): String?{
+        try {
+            println("-----------------")
+            // get from db
+            val rawDataFromDB: AnalysisData? = mongoDBService.getDataByQuery("$className.$methodName")
+            return if(rawDataFromDB == null || (rawDataFromDB.sourceText != null && rawDataFromDB.sourceText.isEmpty())){
+                println("Manually 😭")
+                extractSourceCodeFromFile(className, methodName)
+            }else{
+                println("From DB 🤗")
+                rawDataFromDB.sourceText
+            }
+        }catch (e: Exception){
+            println(e.message)
+            return extractSourceCodeFromFile(className, methodName)
+        }
+    }
+
+    private fun extractSourceCodeFromFile(className: String, methodName: String): String? {
         try {
             val content = when (val path = getPath(className)) {
                 null -> null
                 "libs" -> "libs"
-                else -> File(path).readText().trimIndent()
+                else -> {
+                    extractMethodCode(methodName, File(path).readText().trimIndent(), className)
+                }
             }
 //            println("Content: $content\n")
             return content
@@ -46,14 +67,14 @@ class SourceCodeFetcher {
 
     private fun getPath(className: String): String? {
         try {
-            println("----------")
+//            println("----------")
             val dotenv = dotenv()
             val basePath = dotenv["SOURCE_CODE"]
             val res = when (className.first()) {
                 'C' -> basePath + className.replace('.', '/') + ".java"
                 else -> "libs"
             }
-            println("Path: $res")
+//            println("Path: $res")
             return res
         } catch (e: Exception) {
             println(e.message)
@@ -79,21 +100,21 @@ class SourceCodeFetcher {
             if (isConstructionMethod) {
                 // Visit methods in the class
                 cu.findAll(ConstructorDeclaration::class.java).forEach { method ->
-                    println("Constructor name: $methodName. current name ${method.nameAsString}")
+//                    println("Constructor name: $methodName. current name ${method.nameAsString}")
                     if (method.nameAsString == methodName) {
                         methods += method.toString()
                         println("Find method for $methodName 😊")
-                        println(methods)
+//                        println(methods)
                     }
                 }
             }else{
                 // Visit methods in the class
                 cu.findAll(MethodDeclaration::class.java).forEach { method ->
-                    println("Method name: $methodName. current name ${method.nameAsString}")
+//                    println("Method name: $methodName. current name ${method.nameAsString}")
                     if (method.nameAsString == methodName) {
                         methods += method.toString()
                         println("Find method for $methodName 😊")
-                        println(methods)
+//                        println(methods)
                     }
                 }
             }

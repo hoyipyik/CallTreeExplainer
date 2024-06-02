@@ -62,9 +62,9 @@ class CallTree(
         neo4jService.upgradeNodeSourceCode(node.id!!, rawSourceData.sourceCode)
     }
 
-    fun writeTreeToJson(path2Save: String, jsonWriter: JSONService): Boolean {
+    fun writeTreeToJson(path2Save: String, jsonWriter: JSONService, fileName: String): Boolean {
         try {
-            rootNode?.let { jsonWriter.write2File(it, path2Save) }
+            rootNode?.let { jsonWriter.write2File(it, "$path2Save$fileName.json") }
             return true
         } catch (e: Exception) {
             println(e.message)

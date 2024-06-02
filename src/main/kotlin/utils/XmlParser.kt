@@ -8,7 +8,8 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
 class XmlParser(
-    private val neo4jService: Neo4jService
+    private val neo4jService: Neo4jService,
+    private val mongoDBService: MongoDBService
 ) {
     fun constructCallTreeFromPath(filePath: String): CallTree {
         val rootNode = parseFromFilePath(filePath)
@@ -47,9 +48,10 @@ class XmlParser(
             val selfTime = nodeElement.getAttribute("selfTime").toIntOrNull() ?: 0
             val lineNumber = nodeElement.getAttribute("lineNumber").toIntOrNull() ?: -1
             val percent = nodeElement.getAttribute("percent").toDoubleOrNull() ?: 0.0
+            val layer = mongoDBService.getDataByQuery("$className.$methodName")?.layer ?: ""
 
             val callTreeNode = CallTreeNode(
-                nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent, childIndex, "", parentNode
+                nodeType, leaf, className, methodName, methodSignature, time, count, selfTime, lineNumber, percent, childIndex, "", parentNode, layer
             )
 
             val currentNodeId = neo4jService.addNode(callTreeNode)!!

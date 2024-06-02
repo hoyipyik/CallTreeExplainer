@@ -148,6 +148,7 @@ class Neo4jService(url: String, username: String, password: String, dbName: Stri
                 explanation: ${'$'}explanation,
                 sourceCode: ${'$'}sourceCode,
                 parentNode: ${'$'}parentNode,
+                layer: ${'$'}layer,
                 childNodes: ${'$'}childNodes
             }) RETURN id(n)
         """.trimIndent()
@@ -167,6 +168,7 @@ class Neo4jService(url: String, username: String, password: String, dbName: Stri
             "explanation" to node.explanation,
             "sourceCode" to node.sourceCode,
             "parentNode" to (node.parent?.className?.takeIf { it.isNotEmpty() } ?: "root"),
+            "layer" to node.layer,
             "childNodes" to node.children.map { it.className })
         return tx.run(query, params).single()[0].asLong()
     }

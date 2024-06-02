@@ -14,12 +14,12 @@ class CallTreeNode(
     val childIndex: Int = -1,
     var prompt: String = "",
     val parent: CallTreeNode? = null,
+    val layer: String = "",
     var explanation: String = "",
     var sourceCode: String = "",
     val children: MutableList<CallTreeNode> = mutableListOf(),
     var id: Long? = null
 ) {
-
     fun addChild(child: CallTreeNode) {
         children.add(child)
     }

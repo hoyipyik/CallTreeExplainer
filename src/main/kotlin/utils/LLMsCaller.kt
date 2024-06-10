@@ -48,7 +48,7 @@ class LLMsCaller(
             if (rawSource.isLib) {
                 println("Is lib 📖")
                 val sourceSlice =
-                    "Give me a summarization for this method $methodName, based on explanation to this Java lib: $packageName" +
+                    "Explain the process that is happening in this method $methodName, based on explanation to this Java lib: $packageName" +
                             if (childrenExplanation.isEmpty()) "" else " and other information"
                 sourceCodeStr = "$sourceSlice is provided below:\n"
             }else{
@@ -57,7 +57,7 @@ class LLMsCaller(
             }
         } else {
             println("Has source code 😎")
-            val sourceCodeSlice = "Give me a summarization for this method (don't forget to mention the parameters of methods), based on source code " +
+            val sourceCodeSlice = "Explain the process that is happening in this method (don't forget to mention the parameters of methods), based on source code " +
                     if (childrenExplanation.isEmpty()) "" else "and other information"
             sourceCodeStr = sourceCodeSlice + " provided below.\n" +
                 "\nHere is the source code:\n" + sourceCode + "\n"

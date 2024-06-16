@@ -26,6 +26,7 @@ class LLMsCaller(
             }
             val prompt: String = generatePrompt(rawSource, childrenExplanation)
             val res = fetchResFromRemoteAI(prompt)
+//            val res = ""
             return ExplanationData(res, prompt)
         } catch (e: Exception) {
             println(e.message)
@@ -53,7 +54,7 @@ class LLMsCaller(
                 sourceCodeStr = "$sourceSlice is provided below:\n"
             }else{
                 println("Source is empty 🤔(Due to lack of the source code / parser error, or this is the Root node)")
-                sourceCodeStr = "I am explaining a Java call tree, this is a parent node, give me a explanation for this node, put the information below together:\n"
+                sourceCodeStr = "I am explaining a Java call tree, this is a root node, give me a explanation for this node, put the information below together:\n"
             }
         } else {
             println("Has source code 😎")
